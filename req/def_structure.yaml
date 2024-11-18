@@ -1,0 +1,114 @@
+- backend:
+    - app:
+        - api:
+            - lessons:
+                - __init__.py: '予約APIの初期化ファイル。
+                               依存:
+                                 - core.schedule_manager
+                                 - core.payment_processor
+                               エクスポート:
+                                 - router
+                               クラス:
+                                 - LessonConfig: レッスン設定管理
+                                   関数:
+                                     - setup_schedule(): スケジュール設定
+                                     - validate_booking(): 予約検証'
+                - router.py: 'レッスン予約APIルートを定義するファイル。
+                            依存:
+                              - services.lesson_service
+                              - schemas.lesson
+                            エンドポイント:
+                              - POST /lessons/book
+                              - GET /lessons/schedule
+                              - PUT /lessons/{booking_id}
+                              - DELETE /lessons/{booking_id}
+                            クラス:
+                              - LessonController: レッスン制御ハンドラ'
+            - materials:
+                - __init__.py: '教材APIの初期化ファイル。
+                               依存:
+                                 - core.gdrive_connector
+                                 - core.access_control
+                               エクスポート:
+                                 - router
+                               クラス:
+                                 - MaterialConfig: 教材設定管理'
+                - router.py: '教材APIルートを定義するファイル。
+                            依存:
+                              - services.material_service
+                              - schemas.material
+                            エンドポイント:
+                              - GET /materials/list
+                              - GET /materials/download/{material_id}
+                              - POST /materials/upload'
+            - auth:
+                - __init__.py: '認証APIの初期化ファイル。
+                               依存:
+                                 - core.security
+                                 - core.email_service
+                               エクスポート:
+                                 - router
+                               クラス:
+                                 - AuthConfig: 認証設定管理'
+                - router.py: '認証APIルートを定義するファイル。
+                            エンドポイント:
+                              - POST /auth/register
+                              - POST /auth/login
+                              - POST /auth/reset-password'
+            - payment:
+                - __init__.py: '決済APIの初期化ファイル。
+                               依存:
+                                 - core.payment_processor
+                                 - core.security
+                               クラス:
+                                 - PaymentConfig: 決済設定管理'
+                - router.py: '決済APIルートを定義するファイル。
+                            エンドポイント:
+                              - POST /payment/process
+                              - GET /payment/status/{payment_id}'
+        - core:
+            - __init__.py: 'コアモジュールの初期化ファイル。'
+            - schedule_manager.py: 'スケジュール管理機能を実装するファイル。'
+            - payment_processor.py: '決済処理機能を実装するファイル。'
+            - gdrive_connector.py: 'Google Drive連携機能を実装するファイル。'
+            - email_service.py: 'メール送信機能を実装するファイル。'
+            - security.py: 'セキュリティ機能を実装するファイル。'
+        - models:
+            - __init__.py: 'モデルの初期化ファイル。'
+            - user.py: 'ユーザーモデルを定義するファイル。'
+            - lesson.py: 'レッスンモデルを定義するファイル。'
+            - material.py: '教材モデルを定義するファイル。'
+            - payment.py: '決済モデルを定義するファイル。'
+        - schemas:
+            - __init__.py: 'スキーマの初期化ファイル。'
+            - user.py: 'ユーザースキーマを定義するファイル。'
+            - lesson.py: 'レッスンスキーマを定義するファイル。'
+            - material.py: '教材スキーマを定義するファイル。'
+            - payment.py: '決済スキーマを定義するファイル。'
+- frontend:
+    - app:
+        - page.tsx: 'メインページコンポーネント。'
+        - layout.tsx: 'レイアウトコンポーネント。'
+        - lessons:
+            - page.tsx: 'レッスン予約ページ。'
+            - schedule.tsx: 'スケジュール表示ページ。'
+        - materials:
+            - page.tsx: '教材一覧ページ。'
+        - admin:
+            - page.tsx: '管理者ダッシュボード。'
+    - components:
+        - LessonCalendar.tsx: 'レッスンカレンダーコンポーネント。'
+        - MaterialList.tsx: '教材一覧コンポーネント。'
+        - PaymentForm.tsx: '決済フォームコンポーネント。'
+        - Navigation.tsx: 'ナビゲーションコンポーネント。'
+        - Footer.tsx: 'フッターコンポーネント。'
+    - lib:
+        - api:
+            - lessons.ts: 'レッスンAPI呼び出し関数。'
+            - materials.ts: '教材API呼び出し関数。'
+            - auth.ts: '認証API呼び出し関数。'
+            - payment.ts: '決済API呼び出し関数。'
+        - hooks:
+            - useLessons.ts: 'レッスン関連カスタムフック。'
+            - useMaterials.ts: '教材関連カスタムフック。'
+            - useAuth.ts: '認証関連カスタムフック。'

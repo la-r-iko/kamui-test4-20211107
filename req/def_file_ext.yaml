@@ -1,0 +1,133 @@
+# 共通の制約を定義
+anchors:
+  python_constraints: &python_constraints
+    - 'PEP 8スタイルガイドに従うこと'
+    - 'type hintを使用すること'
+    - '非同期処理にはasyncio/aioを使用すること'
+    - 'ユニットテストを作成すること（カバレッジ80%以上）'
+    - 'パフォーマンス最適化（非同期処理、キャッシュなど）を行うこと'
+
+  security_constraints: &security_constraints
+    - 'HTTPS通信を強制すること'
+    - 'OAuth2.0による認証を実装すること'
+    - 'データの暗号化（転送中および保存時）を行うこと'
+    - 'OWASP Top 10に対応すること'
+    - 'JWTトークンによる認証を実装すること'
+
+  next_constraints: &next_constraints
+    - 'Next.js 13以上を使用すること'
+    - 'TypeScriptを使用すること'
+    - 'Server ComponentsとClient Componentsを適切に使い分けること'
+    - 'レスポンシブデザインを実装すること'
+    - 'SEO対策を実装すること'
+
+rules:
+  # バックエンド規則
+  '^backend/.*\.py$':
+    - *python_constraints
+    - *security_constraints
+    - 'main.py': |
+        FastAPIアプリケーションの初期化
+        データベース接続の確立
+        認証ミドルウェアの設定
+        APIルーターの登録
+        エラーハンドリングの実装
+        CORSミドルウェアの設定
+
+    - '^backend/app/api/auth/.*\.py$':
+      - 'router.py': |
+          依存:
+            - services.auth_service
+            - schemas.user
+            - core.security
+          エンドポイント:
+            - POST /auth/register
+            - POST /auth/login
+            - POST /auth/reset-password
+            - GET /auth/verify-email
+          クラス:
+            - AuthManager:
+                - register_user(user_data: UserCreate) -> User
+                - authenticate_user(email: str, password: str) -> Token
+                - reset_password(email: str) -> Message
+                - verify_email(token: str) -> Message
+
+    - '^backend/app/api/lessons/.*\.py$':
+      - 'router.py': |
+          依存:
+            - services.lesson_service
+            - schemas.lesson
+          エンドポイント:
+            - POST /lessons/book
+            - GET /lessons/schedule
+            - PUT /lessons/{lesson_id}
+            - DELETE /lessons/{lesson_id}
+          クラス:
+            - LessonManager:
+                - create_booking(booking_data: BookingCreate) -> Booking
+                - get_schedule() -> List[Schedule]
+                - update_booking(booking_id: str, data: BookingUpdate) -> Booking
+                - cancel_booking(booking_id: str) -> Message
+
+  # フロントエンド規則
+  '^frontend/.*\.(ts|tsx)$':
+    - *next_constraints
+    - 'app/layout.tsx': |
+        依存:
+          - components/Layout
+          - contexts/AuthContext
+          - styles/globals.css
+        機能:
+          - RootLayoutの定義
+          - メタデータの設定
+          - 認証プロバイダーの設定
+
+    - 'app/lessons/page.tsx': |
+        依存:
+          - components/LessonSchedule
+          - components/BookingForm
+          - services/api/lessons
+        機能:
+          - レッスンスケジュール表示
+          - 予約フォーム
+          - Server-side Rendering
+
+    - 'components/LessonSchedule.tsx': |
+        依存:
+          - services/api/lessons
+          - types/Lesson
+        機能:
+          - カレンダー表示
+          - 空き状況表示
+          - 予約状態管理
+
+データ連携:
+  backend_to_frontend:
+    - 'lessons.ts -> LessonSchedule.tsx':
+        - レッスンスケジュールデータ
+        - 予約状況更新
+    - 'auth.ts -> AuthForm.tsx':
+        - 認証状態
+        - ユーザー情報
+
+non_functional_requirements:
+  performance:
+    - 'ページロード時間1.5秒以内'
+    - 'API応答時間300ms以内'
+    - 'データベースクエリの最適化'
+  scalability:
+    - '同時予約処理の対応'
+    - 'ユーザー数増加への対応'
+    - 'データベースのスケーリング'
+  reliability:
+    - '予約システムの安定性確保'
+    - 'バックアップと復元機能'
+    - '24/7システム可用性'
+  security:
+    - '個人情報の暗号化'
+    - '決済情報のセキュア処理'
+    - 'アクセス制御の厳格化'
+  frontend_specific:
+    - 'First Contentful Paint 1.5秒以内'
+    - 'Time to Interactive 2秒以内'
+    - 'Lighthouse スコア90以上'
